@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: MLegfHPwfk/NLQm08pcqujCDlOrltvT/jWSiYR0kClgkGK7YR2nUHP15wJehHTjrfcWp26ndeGhnd6fmwwoyKCFOeBJ9YrQ1ErY6jDsrUEYFJi10dx+RD/38OfMO8xHwJfyV7rupsugdQM3X+S5SkcNiBPl+TAP6qT/bDitSvG4xgHUNHnpX0pphcrbXCNtNZdBRH1vO6xIOd/AGwu2NdUePF2btaRKZGPpxLc0or5yWMRcsVxQ4fP3Ib1ROtQk396TbuB4CfWbQA8mLDTZ3oVu6XLuHfcqDkj7/A4nWT9xhna+0d+XGJ7EAoZRswbfc4tr0hJyCnE4UNXsglFJaXYfJvolLReNWjG92vm2eG+Ypo4+tH/VHJL2ViaG2kl1zO0Dtw6e4Lg3dwC4VgmL/NArhfbh8DRYmFebeJxNQllZESIlUaFOZ1DrTqbyIYGPHUKTgn6tYtdZa5dRkpVZ97JNz5vFI0vUlCrWmuN0am99zSSU0dPxt04iqZNrpZhSlgGSRZ77tyC2ma+2pKUqCQIeSZB56Q1qt5kSo4VkJzDX7/o59fEaoYvZ0emGh/4MPc4XsPx6pffvklZPjHDdhWfcsxsouySeNdqDTEgO2/QCz/8BmbBoU17vpTCMA5eoccJ/16di/GwI9V45Q6BcdPZE+yfLfrebB5QC5vQTXr88=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/A-Hazard-of-New-Fortunes---Volume-2_3367
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
